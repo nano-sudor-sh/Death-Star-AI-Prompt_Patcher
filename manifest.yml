@@ -1,0 +1,108 @@
+modules:
+  jira:issuePanel:
+    - key: hello-world-panel
+      resource: example-resource
+      resolver:
+        function: issue-panel-resolver
+      render: native
+      title: Hello world!
+      icon: https://developer.atlassian.com/platform/forge/images/issue-panel-icon.svg
+  function:
+    - key: issue-panel-resolver
+      handler: index.handler
+resources:
+  - key: example-resource
+    path: src/frontend/index.jsx
+
+import React, { useEffect, useState } from 'react';
+import ForgeReconciler, { Text } from '@forge/react';
+import { invoke } from '@forge/bridge';
+
+const App = () => {
+  const [data, setData] = useState(null);
+  useEffect(() => {
+    invoke('getText', { example: 'my-invoke-variable' }).then(setData);
+  }, []);
+  return (
+    <>
+      <Text>Hello world!</Text>
+      <Text>{data ? data : 'Loading...'}</Text>
+    </>
+  );
+};
+
+ForgeReconciler.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+import Resolver from '@forge/resolver';
+
+const resolver = new Resolver();
+
+resolver.define('getText', (req) => {
+  console.log(req);
+  return 'Hello, world!';
+});
+
+export const handler = resolver.getDefinitions();
+
+
+modules:
+  jira:issuePanel:
+    - key: hello-world-panel
+      resource: example-resource
+      resolver:
+        function: issue-panel-resolver
+      title: Hello world!
+      icon: https://developer.atlassian.com/platform/forge/images/issue-panel-icon.svg
+  function:
+    - key: issue-panel-resolver
+      handler: index.handler
+resources:
+  - key: example-resource
+    path: static/hello-world/build
+
+
+import Resolver from "@forge/resolver";
+
+const resolver = new Resolver();
+
+resolver.define("exampleFunctionKey", ({ payload, context }) => {
+  return { example: `Hello, ${payload.name}!` };
+});
+
+export const handler = resolver.getDefinitions();
+
+
+import { invoke } from "@forge/bridge";
+
+invoke("exampleFunctionKey", { name: "World" }).then((returnedData) =>
+  console.log(returnedData.example);
+);
+
+function define(
+  functionKey: string,
+  cb: (request: {
+    payload: {
+      [key in number | string]: any;
+    },
+    context: {
+      accountId?: string;
+      accountType?: 'licensed' | 'unlicensed' | 'customer' | 'anonymous';
+      cloudId?: string;
+      workspaceId?: string;
+      localId: string;
+      installContext: string;
+      environmentId: string;
+      environmentType: string;
+      extension: {
+        config?: { [key: string]: any } // defined for macro extensions
+        [key: string]: any;
+      }
+    }
+  }) => Promise<{ [key: string]: any } | string | void> | { [key: string]: any } | string | void,
+): this
+
+
